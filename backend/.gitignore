@@ -1,0 +1,49 @@
+# .gitignore per .NET
+
+# File compilati
+**/bin/
+**/obj/
+
+# File di Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# File di Rider
+.idea/
+
+# File temporanei
+*.tmp
+*.bak
+*.swp
+*~.nib
+log/
+*.log
+*.pidlock
+
+# File di database
+*.db
+*.db3
+*.sqlite
+
+# File di test
+TestResults/
+
+# File di build
+*.bbl
+*.blg
+*.dvi
+*.pdf
+*.toc
+
+# File di progetto
+Project/Properties/
+Project/obj/
+Project/bin/
+
+# File di progetto DAL
+Project.DAL/Properties/
+Project.DAL/obj/
+Project.DAL/bin/

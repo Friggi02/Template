@@ -1,0 +1,147 @@
+.toolbar{
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    background: #1e1a1d;
+    height: 60px;
+    z-index: 3;
+}
+
+.logo-container{
+    display: flex;
+    align-items: center;
+}
+
+.menu-button, .sidenav-nav-item, .profile-button{
+    cursor: pointer;
+}
+
+.menu-button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 13px;
+    margin-right: 33px;
+    color: gainsboro;
+}
+
+.logo-text{
+    font-size: 24px;
+    font-weight: 500;
+    color: gainsboro;
+}
+
+.sidenav{
+    background: #1e1a1d;
+    transition: all .3s ease;
+    position: relative;
+    z-index: 2;
+    top: 0;
+    width: 5rem; // collapsed width
+    height: 100vh;
+}
+
+.sidenav-collapsed{
+    width: 12rem; // expanded width
+}
+
+.sidenav-nav{
+    list-style: none;
+    padding: 1rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.sidenav-nav-item{
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.sidenav-nav-link{
+    display: flex;
+    align-items: center;
+    height: 45px;
+    color: gainsboro;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all .3s ease;
+    position: relative;
+}
+
+.sidenav-nav-item:hover .sidenav-nav-link{
+    background-color: gainsboro;
+    color: #1e1a1d;
+    .sidenav-link-icon{
+        color: #1e1a1d;
+    }
+}
+
+.active{
+    background-color: gainsboro;
+}
+
+.active .sidenav-link-icon, .active .sidenav-link-text{
+    color: #1e1a1d;
+}
+
+.sidenav-link-text{
+    white-space: nowrap;
+    margin-right: 10px;
+}
+
+.sidenav-link-icon{
+    font-size: 22px;
+    width: 2rem;
+    min-width: 2rem;
+    margin: 0 0.5rem;
+    text-align: center;
+    color: gainsboro;
+}
+
+.profile-button{
+    background-color: gainsboro;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border: none;
+    display: flex;
+    color: #1e1a1d;
+    justify-content: center;
+    align-items: center;
+}
+
+.content-collapsed{
+    display:flex;
+    overflow-y: auto;
+    margin-top: 60px;
+    height: 100vh;
+    flex-grow: 1;
+    width: calc(100vw - 12rem); // subtract collapsed width
+    transition: all .3s ease;
+}
+
+.content-expanded{
+    display:flex;
+    overflow-y: auto;
+    margin-top: 60px;
+    height: 90vh;
+    flex-grow: 1;
+    width: calc(100vw - 5rem); // subtract collapsed width
+    transition: all .3s ease;
+}
+
+@media (max-width: 600px){
+    .sidenav{
+        position: fixed;
+    }
+    .content-collapsed{
+        width: 100vw;
+        filter: blur(5px);
+    }
+    .content-expanded{
+        width: 100vw;
+    }
+}

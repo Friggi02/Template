@@ -1,0 +1,20 @@
+<dx-data-grid [dataSource]="products" [showBorders]="true" style="margin: 30px" [allowColumnReordering]="true"
+    [allowColumnResizing]="true">
+
+    <dxi-column dataField="barCode" dataType="string" [width]="115" caption="Barcode"></dxi-column>
+    <dxi-column dataField="name" dataType="string" [width]="200" caption="Name"></dxi-column>
+    <dxi-column dataField="category.name" dataType="string" [width]="200" caption="Category"></dxi-column>
+    <dxi-column dataField="producer" dataType="string" [width]="200" caption="Producer"></dxi-column>
+    <dxi-column dataField="nutriscore_Grade" dataType="string" alignment="right" [width]="100"
+        caption="Nutriscore Grade"></dxi-column>
+    <dxi-column dataField="nutriscore_Value" dataType="number" [width]="100" caption="Nutriscore Value"></dxi-column>
+    <dxi-column dataField="ingredients" dataType="string" [visible]="true" [width]="150"
+        caption="Ingredients"></dxi-column>
+
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50, 100]"></dxo-pager>
+    <dxo-search-panel [visible]="true" [highlightCaseSensitive]="false"></dxo-search-panel>
+    <dxo-group-panel [visible]="true"></dxo-group-panel>
+    <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
+
+</dx-data-grid>

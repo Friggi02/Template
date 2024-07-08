@@ -1,0 +1,56 @@
+
+<form [formGroup]="myForm">
+    <div style="display: flex; flex-direction: column; width: 300px; padding: 20px;">
+
+        <mat-form-field>
+            <mat-label>Barcode</mat-label>
+            <input matInput type="text" formControlName="Barcode">
+            <mat-error *ngIf="myForm.controls['Barcode'].invalid">{{errorMessage()}}</mat-error>
+        </mat-form-field>
+        
+        <mat-form-field>
+            <mat-label>Name</mat-label>
+            <input matInput type="text" formControlName="Name">
+            <mat-error *ngIf="myForm.controls['Name'].invalid">{{errorMessage()}}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Category</mat-label>
+            <input matInput type="text" placeholder="Select a category" aria-label="Number" formControlName="Category" [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let option of filteredOptions | async" [value]="option.name">
+                    {{option.name}}
+                </mat-option>
+            </mat-autocomplete>
+            <button mat-icon-button *ngIf="myForm.controls['Category'].value" matSuffix mat-icon-button aria-label="Clear" (click)="myForm.controls['Category'].setValue('')">
+              <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Producer</mat-label>
+            <input matInput type="text" formControlName="Producer">
+            <mat-error *ngIf="myForm.controls['Producer'].invalid">{{errorMessage()}}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>NustriscoreGrade</mat-label>
+            <input matInput type="text" formControlName="NustriscoreGrade">
+            <mat-error *ngIf="myForm.controls['NustriscoreGrade'].invalid">{{errorMessage()}}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>NustriscoreValue</mat-label>
+            <input matInput type="number" formControlName="NustriscoreValue">
+            <mat-error *ngIf="myForm.controls['NustriscoreValue'].invalid">{{errorMessage()}}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Ingredients</mat-label>
+            <textarea matInput formControlName="Ingredients"></textarea>
+        </mat-form-field>
+        
+        <button mat-raised-button color="primary" type="button" (click)="onSubmit()">Invia</button>
+        
+    </div>
+</form>
