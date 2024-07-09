@@ -17,7 +17,7 @@ namespace Project.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -68,12 +68,12 @@ namespace Project.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("0b643c68-2401-409a-926a-a6966922a410"),
+                            Id = new Guid("a0d3a989-91a1-424d-ae31-67fff4149f7e"),
                             Name = "Registered"
                         },
                         new
                         {
-                            Id = new Guid("dd299b38-303e-4f2a-8e56-9c072df07301"),
+                            Id = new Guid("374df0d2-c83d-4b0e-8131-c7595e00422a"),
                             Name = "Admin"
                         });
                 });
@@ -95,17 +95,17 @@ namespace Project.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            RoleId = new Guid("0b643c68-2401-409a-926a-a6966922a410"),
+                            RoleId = new Guid("a0d3a989-91a1-424d-ae31-67fff4149f7e"),
                             PermissionId = 1
                         },
                         new
                         {
-                            RoleId = new Guid("dd299b38-303e-4f2a-8e56-9c072df07301"),
+                            RoleId = new Guid("374df0d2-c83d-4b0e-8131-c7595e00422a"),
                             PermissionId = 1
                         },
                         new
                         {
-                            RoleId = new Guid("dd299b38-303e-4f2a-8e56-9c072df07301"),
+                            RoleId = new Guid("374df0d2-c83d-4b0e-8131-c7595e00422a"),
                             PermissionId = 2
                         });
                 });
@@ -165,7 +165,7 @@ namespace Project.DAL.Migrations
                             Active = true,
                             Email = "fritz@gmail.com",
                             Name = "Andrea",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBtWmWPRWhAePW7/CyuQ6NPRF+FCCe73X5PNx7jQeeDEaKnGNBYBnkik3DTP86QgQw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJSd7RIki7IIFC9MMSNtkoowQgYZFl2hpFlw/GO0GwOCleg6mVEkDTql4mi1mG77hA==",
                             ProfilePic = "https://avatars.githubusercontent.com/u/71127905?v=4",
                             Surname = "Frigerio",
                             Username = "fritz"
@@ -189,7 +189,7 @@ namespace Project.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            RoleId = new Guid("dd299b38-303e-4f2a-8e56-9c072df07301"),
+                            RoleId = new Guid("374df0d2-c83d-4b0e-8131-c7595e00422a"),
                             UserId = new Guid("e5521f4c-c677-4b6e-81e4-e0dcd8a0ea2d")
                         });
                 });

@@ -59,5 +59,19 @@ namespace Project.DAL.Utils
                 {"errors", new[]{result.Error} }
                 });
         }
+
+        public static IResult ToHttpResult<T>(this Result<T> result)
+        {
+            return result.IsSuccess
+                ? Results.Ok(result.Payload)
+                : result.ToProblemDetails();
+        }
+
+        public static IResult ToHttpResult(this Result result)
+        {
+            return result.IsSuccess
+                ? Results.Ok()
+                : result.ToProblemDetails();
+        }
     }
 }

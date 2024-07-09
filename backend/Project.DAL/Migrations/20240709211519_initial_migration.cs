@@ -121,29 +121,29 @@ namespace Project.DAL.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("0b643c68-2401-409a-926a-a6966922a410"), "Registered" },
-                    { new Guid("dd299b38-303e-4f2a-8e56-9c072df07301"), "Admin" }
+                    { new Guid("374df0d2-c83d-4b0e-8131-c7595e00422a"), "Admin" },
+                    { new Guid("a0d3a989-91a1-424d-ae31-67fff4149f7e"), "Registered" }
                 });
 
             migrationBuilder.InsertData(
                 table: "User",
                 columns: new[] { "Id", "AccessFailedCount", "Active", "Email", "LockoutEnd", "Name", "PasswordHash", "ProfilePic", "RefreshToken", "Surname", "Username" },
-                values: new object[] { new Guid("e5521f4c-c677-4b6e-81e4-e0dcd8a0ea2d"), 0, true, "fritz@gmail.com", null, "Andrea", "AQAAAAIAAYagAAAAEBtWmWPRWhAePW7/CyuQ6NPRF+FCCe73X5PNx7jQeeDEaKnGNBYBnkik3DTP86QgQw==", "https://avatars.githubusercontent.com/u/71127905?v=4", null, "Frigerio", "fritz" });
+                values: new object[] { new Guid("e5521f4c-c677-4b6e-81e4-e0dcd8a0ea2d"), 0, true, "fritz@gmail.com", null, "Andrea", "AQAAAAIAAYagAAAAEJSd7RIki7IIFC9MMSNtkoowQgYZFl2hpFlw/GO0GwOCleg6mVEkDTql4mi1mG77hA==", "https://avatars.githubusercontent.com/u/71127905?v=4", null, "Frigerio", "fritz" });
 
             migrationBuilder.InsertData(
                 table: "RolePermission",
                 columns: new[] { "PermissionId", "RoleId" },
                 values: new object[,]
                 {
-                    { 1, new Guid("0b643c68-2401-409a-926a-a6966922a410") },
-                    { 1, new Guid("dd299b38-303e-4f2a-8e56-9c072df07301") },
-                    { 2, new Guid("dd299b38-303e-4f2a-8e56-9c072df07301") }
+                    { 1, new Guid("374df0d2-c83d-4b0e-8131-c7595e00422a") },
+                    { 2, new Guid("374df0d2-c83d-4b0e-8131-c7595e00422a") },
+                    { 1, new Guid("a0d3a989-91a1-424d-ae31-67fff4149f7e") }
                 });
 
             migrationBuilder.InsertData(
                 table: "UserRole",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { new Guid("dd299b38-303e-4f2a-8e56-9c072df07301"), new Guid("e5521f4c-c677-4b6e-81e4-e0dcd8a0ea2d") });
+                values: new object[] { new Guid("374df0d2-c83d-4b0e-8131-c7595e00422a"), new Guid("e5521f4c-c677-4b6e-81e4-e0dcd8a0ea2d") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermission_PermissionId",

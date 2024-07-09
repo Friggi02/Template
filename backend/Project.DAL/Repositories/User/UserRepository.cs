@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Project.DAL.DTOs.Input;
 using Project.DAL.Entities;
@@ -9,6 +10,8 @@ namespace Project.DAL.Repositories
 {
     public class UserRepository(ProjectDbContext ctx, ILogger<UserRepository> logger) : GenericRepository<User>(ctx, logger), IUserRepository
     {
+        PasswordHasher<User> passwordHasher = new();
+
         public List<User> GetAllByRole(Role role)
         {
             List<User>? users = Get(x => x.Active, "Roles").Result.Payload;
@@ -22,23 +25,29 @@ namespace Project.DAL.Repositories
             return user.Roles.Contains(role);
         }
 
-        public Result<User> Create(Register user)
+        public Result<User> Create(Register model)
         {
 
             // check the existance with the same username
-            List<User>? userExists = Get(x => x.Active && x.Username == user.Username).Result.Payload;
-            if (userExists != null) return Result<User>.Failure(UserRepositoryErrors.ExistingUsername);
+            List<User>? userExists = Get(x => x.Active && x.Username == model.Username).Result.Payload;
+            if (!userExists.IsNullOrEmpty()) return Result<User>.Failure(UserRepositoryErrors.ExistingUsername);
 
             // check the existance with the same email
-            userExists = Get(x => x.Active && x.Email == user.Email).Result.Payload;
-            if (userExists != null) return Result<User>.Failure(UserRepositoryErrors.ExistingUsername);
+            userExists = Get(x => x.Active && x.Email == model.Email).Result.Payload;
+            if (!userExists.IsNullOrEmpty()) return Result<User>.Failure(UserRepositoryErrors.ExistingUsername);
 
+            User user = new()
+            {
+                Email = model.Email,
+                Username = model.Username,
+                PasswordHash = ""
+            };
 
             return Create(new User
             {
-                Email = user.Email,
-                Username = user.Username,
-                PasswordHash = user.Password
+                Email = model.Email,
+                Username = model.Username,
+                PasswordHash = passwordHasher.HashPassword(user, model.Password),
             }).Result;
         }
 

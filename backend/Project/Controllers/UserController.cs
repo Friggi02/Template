@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Project.DAL.DTOs.Input;
 using Project.DAL.Entities;
 using Project.DAL.Jwt;
 using Project.DAL.Repositories;
@@ -54,24 +55,11 @@ namespace Project.API.Controllers
 
             Result<Guid> id = GetInfoFromToken.Id(HttpContext);
 
-            if (id.IsSuccess)
-            {
-                Result<User?> user = await _repo.UserRepo.GetById(id.Payload);
+            if (id.IsFailure) return id.ToProblemDetails();
 
-                if (user.IsSuccess)
-                {
+            Result<User?> user = await _repo.UserRepo.GetById(id.Payload);
 
-                    return Results.Ok(user.Payload);
-                }
-                else
-                {
-                    return user.ToProblemDetails();
-                }
-            }
-            else
-            {
-                return id.ToProblemDetails();
-            }
+            return user.ToHttpResult();
         }
 
         [HttpGet]
@@ -95,79 +83,79 @@ namespace Project.API.Controllers
 
         }
 
+
+        //[HttpPost]
+        //[Route("Login")]
+        //public async Task<IResult> Login(Login model)
+        //{
+
+
+        //    var user = await _repo.UserRepo.Get(x => x.Email == model.Email);
+
+        //    if (user.IsFailure) return user.ToProblemDetails();
+
+
+
+        //    if (user == null) return StatusCode(StatusCodes.Status401Unauthorized, $"Access denied");
+        //    if (user.IsDeleted) return StatusCode(StatusCodes.Status401Unauthorized, $"User is deactivated");
+
+        //    // check the lockout
+        //    if (user.IsLockedout()) return StatusCode(StatusCodes.Status401Unauthorized, $"Too many tries. You're locked out until {user.LockoutEnd}");
+
+        //    // getting the accessFailedMax from appsetting.json
+        //    int accessFailedMax;
+        //    try
+        //    {
+        //        accessFailedMax = _configuration.GetValue<int>("SecuritySettings:AccessFailedMax");
+        //    }
+        //    catch (Exception) { return StatusCode(StatusCodes.Status500InternalServerError, "Failed reading AccessFailedMax from appsetting.json"); }
+
+        //    // getting the lockoutTime from appsetting.json
+        //    TimeSpan lockoutTime;
+        //    try
+        //    {
+        //        lockoutTime = _configuration.GetValue<TimeSpan>("SecuritySettings:LockoutTime");
+        //    }
+        //    catch (Exception) { return StatusCode(StatusCodes.Status500InternalServerError, "Failed reading LockoutTime from appsetting.json"); }
+
+        //    // check the number of accesses failed and set lockout
+        //    if (user.AccessFailedCount > accessFailedMax)
+        //    {
+        //        user.AccessFailedCount = 0;
+        //        user.LockoutEnd = DateTime.UtcNow + lockoutTime;
+        //        await _userManager.UpdateAsync(user);
+        //        return StatusCode(StatusCodes.Status401Unauthorized, $"Too many tries. You're locked out until {user.LockoutEnd}");
+        //    }
+
+        //    // check if the password is correct
+        //    if (!await _userManager.CheckPasswordAsync(user, model.Password))
+        //    {
+        //        user.AccessFailedCount++;
+        //        await _userManager.UpdateAsync(user);
+        //        return StatusCode(StatusCodes.Status401Unauthorized, $"Access denied");
+        //    }
+
+        //    // remove the lockout
+        //    user.AccessFailedCount = 0;
+        //    user.LockoutEnd = null;
+        //    await _userManager.UpdateAsync(user);
+
+        //    // build tokens
+        //    string newAccessToken = await _jwtProvider.GenerateAccessToken(user);
+        //    string newRefreshToken = _jwtProvider.GenerateRefreshToken(user);
+
+        //    // saving the refresh token
+        //    user.RefreshToken = newRefreshToken;
+        //    await _userManager.UpdateAsync(user);
+
+        //    return Ok(new
+        //    {
+        //        accessToken = newAccessToken,
+        //        refreshToken = newRefreshToken,
+        //        user = _mapper.MapUserToDTO(user)
+        //    });
+        //}
         /*
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("Login")]
-        public async Task<IActionResult> Login(Login model)
-        {
-
-            // checks on the loginModel
-            if (string.IsNullOrEmpty(model.Email) || model.Email.Length > 40 || model.Email.Contains(" ")) return StatusCode(StatusCodes.Status400BadRequest, "Email is not valid");
-            if (string.IsNullOrEmpty(model.Password) || model.Password.Length > 40) return StatusCode(StatusCodes.Status400BadRequest, "Password is not valid");
-
-            // get the user form db and check if exists
-            User? user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null) return StatusCode(StatusCodes.Status401Unauthorized, $"Access denied");
-            if (user.IsDeleted) return StatusCode(StatusCodes.Status401Unauthorized, $"User is deactivated");
-
-            // check the lockout
-            if (user.IsLockedout()) return StatusCode(StatusCodes.Status401Unauthorized, $"Too many tries. You're locked out until {user.LockoutEnd}");
-
-            // getting the accessFailedMax from appsetting.json
-            int accessFailedMax;
-            try
-            {
-                accessFailedMax = _configuration.GetValue<int>("SecuritySettings:AccessFailedMax");
-            }
-            catch (Exception) { return StatusCode(StatusCodes.Status500InternalServerError, "Failed reading AccessFailedMax from appsetting.json"); }
-
-            // getting the lockoutTime from appsetting.json
-            TimeSpan lockoutTime;
-            try
-            {
-                lockoutTime = _configuration.GetValue<TimeSpan>("SecuritySettings:LockoutTime");
-            }
-            catch (Exception) { return StatusCode(StatusCodes.Status500InternalServerError, "Failed reading LockoutTime from appsetting.json"); }
-
-            // check the number of accesses failed and set lockout
-            if (user.AccessFailedCount > accessFailedMax)
-            {
-                user.AccessFailedCount = 0;
-                user.LockoutEnd = DateTime.UtcNow + lockoutTime;
-                await _userManager.UpdateAsync(user);
-                return StatusCode(StatusCodes.Status401Unauthorized, $"Too many tries. You're locked out until {user.LockoutEnd}");
-            }
-
-            // check if the password is correct
-            if (!await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                user.AccessFailedCount++;
-                await _userManager.UpdateAsync(user);
-                return StatusCode(StatusCodes.Status401Unauthorized, $"Access denied");
-            }
-
-            // remove the lockout
-            user.AccessFailedCount = 0;
-            user.LockoutEnd = null;
-            await _userManager.UpdateAsync(user);
-
-            // build tokens
-            string newAccessToken = await _jwtProvider.GenerateAccessToken(user);
-            string newRefreshToken = _jwtProvider.GenerateRefreshToken(user);
-
-            // saving the refresh token
-            user.RefreshToken = newRefreshToken;
-            await _userManager.UpdateAsync(user);
-
-            return Ok(new
-            {
-                accessToken = newAccessToken,
-                refreshToken = newRefreshToken,
-                user = _mapper.MapUserToDTO(user)
-            });
-        }
-
         [HttpPost]
         [Route("RefreshToken")]
         public async Task<IActionResult> RefreshToken(string refreshToken)
@@ -207,46 +195,17 @@ namespace Project.API.Controllers
             });
         }
         */
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[Route("RegisterUser")]
-        //public async IActionResult RegisterUser(Register model)
-        //{
+        [HttpPost]
+        [Route("RegisterUser")]
+        public async Task<IResult> RegisterUser(Register model)
+        {
 
-        //    // check the model's property
-        //    if (string.IsNullOrEmpty(model.Password) || model.Password.Length > 40) return StatusCode(StatusCodes.Status400BadRequest, "Password is not valid");
-        //    if (string.IsNullOrEmpty(model.Email) || model.Email.Length > 40 || !Regex.IsMatch(model.Email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) return StatusCode(StatusCodes.Status400BadRequest, "Email is not valid");
 
-        //    // check the existance with the same username
-        //    var userExists = _repo.UserRepo.GetByFilter(x => x.Active && x.Username == model.Username);
-        //    if (userExists != null) return StatusCode(StatusCodes.Status400BadRequest, "Username already exists");
+            // creating
+            Result<User> result = _repo.UserRepo.Create(model);
 
-        //    // check the existance with the same email
-        //    userExists = _repo.UserRepo.GetByFilter(x => x.Active && x.Email == model.Email);
-        //    if (userExists != null) return StatusCode(StatusCodes.Status400BadRequest, "Email already exists");
-
-        //    // instantiate the object
-        //    User user = new()
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        Username = model.Username,
-        //        Email = model.Email,
-        //        Name = model.Name,
-        //        Surname = model.Surname,
-        //        PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
-        //        ProfilePic = model.ProfilePic
-        //    };
-
-        //    // creating
-        //    Result<User> result = _repo.UserRepo.Create(user).Result;
-        //    if (result.IsFailure) return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
-
-        //    // adding role
-        //    result = _repo.UserRoleRepo.Create(new UserRole() { UserId = user.Id, RoleId = Role.Registered.Id }).Result;
-        //    if (result.IsFailure) return result.ToProblemDetails();
-
-        //    return StatusCode(StatusCodes.Status201Created, user.Email);
-        //}
+            return result.ToHttpResult();
+        }
         /*
         [HttpPost]
         [HasPermission(Permissions.ManageUsers)]
