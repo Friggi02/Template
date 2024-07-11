@@ -124,5 +124,11 @@ namespace Project.DAL.Repositories.Generic
         /// <returns>A task that represents the asynchronous operation. The task result indicates whether the operation was successful.</returns>
         Task<Result> Patch(Microsoft.AspNetCore.JsonPatch.JsonPatchDocument<T> patch, T current);
 
+        /// <summary>
+        /// Update the entity baesd on Id with the values of the current entity.
+        /// </summary>
+        /// <param name="entity">The entity with the new values.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result indicates whether the operation was successful.</returns>
+        public Task<Result> Update(T entity);
     }
 }

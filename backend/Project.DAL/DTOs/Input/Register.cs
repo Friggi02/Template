@@ -4,7 +4,7 @@ namespace Project.DAL.DTOs.Input
 {
     public class Register
     {
-        [Required, MinLength(1), MaxLength(50)]
+        [Required, MinLength(1), MaxLength(50), RegularExpression(@"^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,49}$")]
         public required string Username { get; set; }
         [EmailAddress, Required, MaxLength(50)]
         public required string Email { get; set; }

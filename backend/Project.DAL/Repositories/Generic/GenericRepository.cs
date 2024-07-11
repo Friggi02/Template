@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Project.DAL.Utils;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Project.DAL.Repositories.Generic
 {
@@ -314,6 +315,34 @@ namespace Project.DAL.Repositories.Generic
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred while executing Patch: {ex.Message}, StackTrace: {ex.StackTrace}");
+                return Result.Failure(GenericRepositoryErrors.SaveChanges);
+            }
+        }
+
+        public async Task<Result> Update(T entity)
+        {
+            _logger.LogInformation($"Executing Update");
+
+            try
+            {
+                Result<T?> entityResult = await GetById(entity.Id);
+                if (entityResult.IsFailure || entityResult.Payload is null) return Result.Failure(GenericRepositoryErrors.NotFound(entity.Id));
+
+                foreach (PropertyInfo inputProperty in typeof(T).GetProperties())
+                {
+                    PropertyInfo? outputProperty = typeof(T).GetProperty(inputProperty.Name);
+                    if (outputProperty != null && inputProperty.PropertyType == outputProperty.PropertyType)
+                    {
+                        outputProperty.SetValue(entityResult.Payload, inputProperty.GetValue(entity));
+                    }
+                }
+
+                int saveResult = await _ctx.SaveChangesAsync();
+                return saveResult > 0 ? Result.Success() : Result.Failure(GenericRepositoryErrors.SaveChanges);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while executing Update: {ex.Message}, StackTrace: {ex.StackTrace}");
                 return Result.Failure(GenericRepositoryErrors.SaveChanges);
             }
         }

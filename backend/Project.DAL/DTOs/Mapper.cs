@@ -26,7 +26,6 @@ namespace Project.DAL.DTOs
             }
 
             return default;
-
         }
 
         public MappedUser MapUserToDTO(User user) => new()

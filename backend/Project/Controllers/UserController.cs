@@ -12,149 +12,52 @@ namespace Project.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class UserController(
-        //IConfiguration configuration,
         IUnitOfWork repo,
         IJwtProvider jwtProvider,
         JwtOptions jwtOptions
-        //Mapper mapper
         ) : ODataController
     {
-        //private readonly IConfiguration _configuration = configuration;
         private readonly IUnitOfWork _repo = repo;
         private readonly IJwtProvider _jwtProvider = jwtProvider;
         private readonly JwtOptions _jwtOptions = jwtOptions;
-        //private readonly Mapper _mapper = mapper;
+
+
+        [HttpGet]
+        [Route("Test")]
+        public IActionResult Get() => Ok("It works");
 
         //[Authorize]
         //[HasPermission(Permissions.ManageUsers)]
         [HttpGet]
-        public IActionResult Get(ODataQueryOptions<User> options)
-        {
-            return Ok(_repo.UserRepo.GetAllOData(options));
-        }
-
+        public IActionResult Get(ODataQueryOptions<User> options) => Ok(_repo.UserRepo.GetAllOData(options));
 
         [HttpGet]
         //[HasPermission(Permissions.ManageUsers)]
         [Route("GetSingleById")]
-        public async Task<IActionResult> GetSingleById(Guid id)
-        {
-
-            User? user = _repo.UserRepo.GetById(id).Result.Payload;
-            if (user == null) return StatusCode(StatusCodes.Status404NotFound, "User not found");
-
-            return Ok(user);
-        }
+        public IResult GetSingleById(Guid id) => _repo.UserRepo.GetById(id).Result.ToHttpResult();
 
         //[Authorize]
         [HttpGet]
         //[HasPermission(Permissions.ManageMyself)]
         [Route("SelfGet")]
-        public async Task<IResult> SelfGet()
+        public IResult SelfGet()
         {
 
             Result<Guid> id = GetInfoFromToken.Id(HttpContext);
 
             if (id.IsFailure) return id.ToProblemDetails();
 
-            Result<User?> user = await _repo.UserRepo.GetById(id.Payload);
-
-            return user.ToHttpResult();
+            return _repo.UserRepo.GetById(id.Payload).Result.ToHttpResult();
         }
 
-        [HttpGet]
-        //[HasPermission(Permissions.ManageMyself)]
-        [Route("GetToken")]
-        public async Task<IActionResult> GetToken()
-        {
-            return Ok(await _jwtProvider.GenerateAccessToken(new()
-            {
-                Id = Guid.Parse("e5521f4c-c677-4b6e-81e4-e0dcd8a0ea2d"),
-                Username = "fritz",
-                Email = "fritz@gmail.com",
-                Name = "Andrea",
-                Surname = "Frigerio",
-                ProfilePic = "https://avatars.githubusercontent.com/u/71127905?v=4",
-                PasswordHash = "AQAAAAIAAYagAAAAEBtWmWPRWhAePW7/CyuQ6NPRF+FCCe73X5PNx7jQeeDEaKnGNBYBnkik3DTP86QgQw==",
-                Active = true,
-                AccessFailedCount = 0,
-                LockoutEnd = null,
-            }));
+        [HttpPost]
+        [Route("Login")]
+        public IResult Login(Login model) => _repo.UserRepo.Login(model).Result.ToHttpResult();
 
-        }
+        [HttpPost]
+        [Route("RegisterUser")]
+        public IResult RegisterUser(Register model) => _repo.UserRepo.Create(model).ToHttpResult();
 
-
-        //[HttpPost]
-        //[Route("Login")]
-        //public async Task<IResult> Login(Login model)
-        //{
-
-
-        //    var user = await _repo.UserRepo.Get(x => x.Email == model.Email);
-
-        //    if (user.IsFailure) return user.ToProblemDetails();
-
-
-
-        //    if (user == null) return StatusCode(StatusCodes.Status401Unauthorized, $"Access denied");
-        //    if (user.IsDeleted) return StatusCode(StatusCodes.Status401Unauthorized, $"User is deactivated");
-
-        //    // check the lockout
-        //    if (user.IsLockedout()) return StatusCode(StatusCodes.Status401Unauthorized, $"Too many tries. You're locked out until {user.LockoutEnd}");
-
-        //    // getting the accessFailedMax from appsetting.json
-        //    int accessFailedMax;
-        //    try
-        //    {
-        //        accessFailedMax = _configuration.GetValue<int>("SecuritySettings:AccessFailedMax");
-        //    }
-        //    catch (Exception) { return StatusCode(StatusCodes.Status500InternalServerError, "Failed reading AccessFailedMax from appsetting.json"); }
-
-        //    // getting the lockoutTime from appsetting.json
-        //    TimeSpan lockoutTime;
-        //    try
-        //    {
-        //        lockoutTime = _configuration.GetValue<TimeSpan>("SecuritySettings:LockoutTime");
-        //    }
-        //    catch (Exception) { return StatusCode(StatusCodes.Status500InternalServerError, "Failed reading LockoutTime from appsetting.json"); }
-
-        //    // check the number of accesses failed and set lockout
-        //    if (user.AccessFailedCount > accessFailedMax)
-        //    {
-        //        user.AccessFailedCount = 0;
-        //        user.LockoutEnd = DateTime.UtcNow + lockoutTime;
-        //        await _userManager.UpdateAsync(user);
-        //        return StatusCode(StatusCodes.Status401Unauthorized, $"Too many tries. You're locked out until {user.LockoutEnd}");
-        //    }
-
-        //    // check if the password is correct
-        //    if (!await _userManager.CheckPasswordAsync(user, model.Password))
-        //    {
-        //        user.AccessFailedCount++;
-        //        await _userManager.UpdateAsync(user);
-        //        return StatusCode(StatusCodes.Status401Unauthorized, $"Access denied");
-        //    }
-
-        //    // remove the lockout
-        //    user.AccessFailedCount = 0;
-        //    user.LockoutEnd = null;
-        //    await _userManager.UpdateAsync(user);
-
-        //    // build tokens
-        //    string newAccessToken = await _jwtProvider.GenerateAccessToken(user);
-        //    string newRefreshToken = _jwtProvider.GenerateRefreshToken(user);
-
-        //    // saving the refresh token
-        //    user.RefreshToken = newRefreshToken;
-        //    await _userManager.UpdateAsync(user);
-
-        //    return Ok(new
-        //    {
-        //        accessToken = newAccessToken,
-        //        refreshToken = newRefreshToken,
-        //        user = _mapper.MapUserToDTO(user)
-        //    });
-        //}
         /*
         [HttpPost]
         [Route("RefreshToken")]
@@ -195,17 +98,7 @@ namespace Project.API.Controllers
             });
         }
         */
-        [HttpPost]
-        [Route("RegisterUser")]
-        public async Task<IResult> RegisterUser(Register model)
-        {
 
-
-            // creating
-            Result<User> result = _repo.UserRepo.Create(model);
-
-            return result.ToHttpResult();
-        }
         /*
         [HttpPost]
         [HasPermission(Permissions.ManageUsers)]
