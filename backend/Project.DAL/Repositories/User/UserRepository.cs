@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Project.DAL.DTOs;
 using Project.DAL.DTOs.Input;
 using Project.DAL.DTOs.Output;
 using Project.DAL.Entities;
@@ -93,7 +94,7 @@ namespace Project.DAL.Repositories
             if (user is null) return Result<LoginReturn>.Failure(UserRepositoryErrors.NotFoundLogin);
             if (!user.Active) return Result<LoginReturn>.Failure(UserRepositoryErrors.Deactivated);
             if (user.IsLockedout()) return Result<LoginReturn>.Failure(UserRepositoryErrors.LockedOut(user.LockoutEnd));
-
+            
             // check the number of accesses failed and set lockout
             if (user.AccessFailedCount > accessFailedMax)
             {
@@ -135,7 +136,7 @@ namespace Project.DAL.Repositories
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken,
-                User = user
+                User = Mapper.MapUserToDTO(user)
             });
         }
 
@@ -182,7 +183,7 @@ namespace Project.DAL.Repositories
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken,
-                User = user
+                User = Mapper.MapUserToDTO(user)
             });
         }
         public static class UserRepositoryErrors

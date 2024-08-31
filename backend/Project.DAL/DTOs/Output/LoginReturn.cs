@@ -6,6 +6,6 @@ namespace Project.DAL.DTOs.Output
     {
         public required string AccessToken { get; set; }
         public required string RefreshToken { get; set; }
-        public required User User { get; set; }
+        public required MappedUser User { get; set; }
     }
 }

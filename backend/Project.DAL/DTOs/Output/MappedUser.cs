@@ -11,6 +11,6 @@ namespace Project.DAL.DTOs.Output
         public string? Name { get; set; }
         public string? Surname { get; set; }
         public string? ProfilePic { get; set; }
-        public ICollection<Role> Roles { get; set; } = [];
+        public string[] Roles { get; set; } = [];
     }
 }

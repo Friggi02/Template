@@ -28,7 +28,7 @@ namespace Project.DAL.DTOs
             return default;
         }
 
-        public MappedUser MapUserToDTO(User user) => new()
+        public static MappedUser MapUserToDTO(User user) => new()
         {
             Id = user.Id,
             Email = user.Email,
@@ -37,7 +37,7 @@ namespace Project.DAL.DTOs
             Name = user.Name,
             Surname = user.Surname,
             ProfilePic = user.ProfilePic,
-            Roles = user.Roles
+            Roles = user.Roles.Select(role => role.Name).ToArray()
         };
     }
 }
