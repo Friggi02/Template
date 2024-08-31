@@ -1,4 +1,5 @@
-﻿using Project.DAL.DTOs.Input;
+﻿using Microsoft.AspNetCore.Http;
+using Project.DAL.DTOs.Input;
 using Project.DAL.DTOs.Output;
 using Project.DAL.Entities;
 using Project.DAL.Repositories.Generic;
@@ -12,5 +13,6 @@ namespace Project.DAL.Repositories
         public bool HasRole(Guid userId, Role role);
         public Result<User> Create(Register model);
         public Task<Result<LoginReturn>> Login(Login model);
+        public Task<Result<LoginReturn>> RefreshToken(HttpContext httpContext, string refreshToken);
     }
 }

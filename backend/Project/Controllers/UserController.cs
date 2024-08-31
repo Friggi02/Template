@@ -58,46 +58,9 @@ namespace Project.API.Controllers
         [Route("RegisterUser")]
         public IResult RegisterUser(Register model) => _repo.UserRepo.Create(model).ToHttpResult();
 
-        /*
-        [HttpPost]
-        [Route("RefreshToken")]
-        public async Task<IActionResult> RefreshToken(string refreshToken)
-        {
-            // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted)) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
-
-            // get the user form db and check if exists
-            User? user = await _userManager.FindByIdAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            if (user == null) return StatusCode(StatusCodes.Status401Unauthorized, "Access denied");
-            if (user.IsDeleted) return StatusCode(StatusCodes.Status401Unauthorized, "User is deactivated");
-
-            // check the refresh token on the db
-            if (user.RefreshToken != refreshToken) return StatusCode(StatusCodes.Status401Unauthorized, "RefreshToken not valid");
-
-            // check the token's expire date
-            if (new JwtSecurityTokenHandler().ReadToken(refreshToken) is not JwtSecurityToken jsonToken) return StatusCode(StatusCodes.Status401Unauthorized, "RefreshToken not valid");
-            if (_jwtProvider.GetExpirationDate(refreshToken) < DateTime.UtcNow)
-            {
-                user.RefreshToken = null;
-                await _userManager.UpdateAsync(user);
-                return StatusCode(StatusCodes.Status401Unauthorized, "RefreshToken expired");
-            }
-
-            // build tokens
-            string newAccessToken = await _jwtProvider.GenerateAccessToken(user);
-            string newRefreshToken = _jwtProvider.GenerateRefreshToken(user);
-
-            // saving the refresh token
-            user.RefreshToken = newRefreshToken;
-            await _userManager.UpdateAsync(user);
-
-            return Ok(new
-            {
-                accessToken = newAccessToken,
-                refreshToken = newRefreshToken
-            });
-        }
-        */
+        //[HttpPost]
+        //[Route("RefreshToken")]
+        //public IResult RefreshToken(string refreshToken) => _repo.UserRepo.RefreshToken(HttpContext, refreshToken).Result.ToHttpResult();
 
         /*
         [HttpPost]
