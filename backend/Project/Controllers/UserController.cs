@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Project.DAL.DTOs;
 using Project.DAL.DTOs.Input;
+using Project.DAL.DTOs.Output;
 using Project.DAL.Entities;
 using Project.DAL.Jwt;
+using Project.DAL.Permit;
 using Project.DAL.Repositories;
 using Project.DAL.Utils;
 
@@ -14,9 +17,11 @@ namespace Project.API.Controllers
     public class UserController(
         IUnitOfWork repo,
         IJwtProvider jwtProvider,
+        Mapper mapper,
         JwtOptions jwtOptions
         ) : ODataController
     {
+        private readonly Mapper _mapper = mapper;
         private readonly IUnitOfWork _repo = repo;
         private readonly IJwtProvider _jwtProvider = jwtProvider;
         private readonly JwtOptions _jwtOptions = jwtOptions;
@@ -38,16 +43,20 @@ namespace Project.API.Controllers
 
         //[Authorize]
         [HttpGet]
-        //[HasPermission(Permissions.ManageMyself)]
+        [HasPermission(Permissions.ManageMyself)]
         [Route("SelfGet")]
         public IResult SelfGet()
         {
+            Result<Guid> idResult = GetInfoFromToken.Id(HttpContext);
+            if (idResult.IsFailure) return idResult.ToProblemDetails();
 
-            Result<Guid> id = GetInfoFromToken.Id(HttpContext);
+            Result<User?> userResult = _repo.UserRepo.GetById(idResult.Payload).Result;
 
-            if (id.IsFailure) return id.ToProblemDetails();
+            Result<MappedUser?> result = userResult.Payload is not null
+                ? Result<MappedUser?>.Success(_mapper.MapUserToDTO(userResult.Payload))
+                : Result<MappedUser?>.Failure(userResult.Error);
 
-            return _repo.UserRepo.GetById(id.Payload).Result.ToHttpResult();
+            return result.ToHttpResult();
         }
 
         [HttpPost]
@@ -58,9 +67,9 @@ namespace Project.API.Controllers
         [Route("RegisterUser")]
         public IResult RegisterUser(Register model) => _repo.UserRepo.Create(model).ToHttpResult();
 
-        //[HttpPost]
-        //[Route("RefreshToken")]
-        //public IResult RefreshToken(string refreshToken) => _repo.UserRepo.RefreshToken(HttpContext, refreshToken).Result.ToHttpResult();
+        [HttpPost]
+        [Route("RefreshToken")]
+        public IResult RefreshToken(Tokens request) => _repo.UserRepo.RefreshToken(request).Result.ToHttpResult();
 
         /*
         [HttpPost]

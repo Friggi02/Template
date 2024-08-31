@@ -1,11 +1,13 @@
 ﻿using Project.DAL.DTOs.Output;
 using Project.DAL.Entities;
+using Project.DAL.Repositories;
 using System.Reflection;
 
 namespace Project.DAL.DTOs
 {
-    public class Mapper
+    public class Mapper(ProjectDbContext ctx)
     {
+        protected readonly ProjectDbContext _ctx = ctx;
         public static OutputType? Map<InputType, OutputType>(InputType? input) where OutputType : new()
         {
             if (input is not null)
@@ -28,16 +30,28 @@ namespace Project.DAL.DTOs
             return default;
         }
 
-        public static MappedUser MapUserToDTO(User user) => new()
-        {
-            Id = user.Id,
-            Email = user.Email,
-            Username = user.Username,
-            Active = user.Active,
-            Name = user.Name,
-            Surname = user.Surname,
-            ProfilePic = user.ProfilePic,
-            Roles = user.Roles.Select(role => role.Name).ToArray()
-        };
+        public MappedUser MapUserToDTO(User user) {
+        
+            var userRoles = _ctx.Set<UserRole>()
+                .Where(x => x.UserId == user.Id)
+                .Select(x => x.RoleId)
+                .ToList();
+
+            var roles = _ctx.Set<Role>()
+                .Where(x => userRoles.Contains(x.Id))
+                .ToArray();
+
+            return new()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Active = user.Active,
+                Name = user.Name,
+                Surname = user.Surname,
+                ProfilePic = user.ProfilePic,
+                Roles = roles.Select(role => role.Name).ToArray() ?? []
+            };
+        }
     }
 }

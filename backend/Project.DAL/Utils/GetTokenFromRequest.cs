@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Project.DAL.Utils
@@ -8,6 +9,20 @@ namespace Project.DAL.Utils
         public static Result<Guid> Id(HttpContext httpContext)
         {
             Claim? claim = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (claim == null) return Result<Guid>.Failure(GetTokenFromRequestErrors.ClaimNotFound);
+
+            if (!Guid.TryParse(claim.Value, out Guid guidValue)) return Result<Guid>.Failure(GetTokenFromRequestErrors.NotGuid);
+
+            return Result<Guid>.Success(guidValue);
+        }
+
+        public static Result<Guid> Id(string accessToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(accessToken);
+
+            var claim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
             if (claim == null) return Result<Guid>.Failure(GetTokenFromRequestErrors.ClaimNotFound);
 

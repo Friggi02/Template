@@ -1,4 +1,5 @@
-﻿using Project.DAL.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Project.DAL.Entities;
 using Project.DAL.Utils;
 
 namespace Project.DAL.Repositories
@@ -22,6 +23,20 @@ namespace Project.DAL.Repositories
                 return Result.Success();
             else
                 return Result.Failure(UserRoleRepositoryErrors.SaveChanges);
+        }
+
+        public async Task<Result<Role[]>> GetUserRoles(Guid userId)
+        {
+            var userRoles = await _ctx.Set<UserRole>()
+                                      .Where(x => x.UserId == userId)
+                                      .Select(x => x.RoleId)
+                                      .ToListAsync();
+
+            var roles = await _ctx.Set<Role>()
+                                  .Where(x => userRoles.Contains(x.Id))
+                                  .ToArrayAsync();
+
+            return Result<Role[]>.Success(roles);
         }
     }
 

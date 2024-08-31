@@ -4,6 +4,7 @@ using Project.DAL.DTOs.Output;
 using Project.DAL.Entities;
 using Project.DAL.Repositories.Generic;
 using Project.DAL.Utils;
+using System.Security.Claims;
 
 namespace Project.DAL.Repositories
 {
@@ -13,6 +14,6 @@ namespace Project.DAL.Repositories
         public bool HasRole(Guid userId, Role role);
         public Result<User> Create(Register model);
         public Task<Result<LoginReturn>> Login(Login model);
-        public Task<Result<LoginReturn>> RefreshToken(HttpContext httpContext, string refreshToken);
+        public Task<Result<string>> RefreshToken(Tokens request);
     }
 }
