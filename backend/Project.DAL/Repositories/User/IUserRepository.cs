@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Project.DAL.DTOs.Input;
+﻿using Project.DAL.DTOs.Input;
 using Project.DAL.DTOs.Output;
 using Project.DAL.Entities;
 using Project.DAL.Repositories.Generic;
 using Project.DAL.Utils;
-using System.Security.Claims;
 
 namespace Project.DAL.Repositories
 {

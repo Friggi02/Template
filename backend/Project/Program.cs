@@ -58,15 +58,14 @@ builder.Services.AddScoped<Mapper>();
 builder.Services.AddEndpointsApiExplorer();
 
 // Add Swagger and Swagger UI to the service collection
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(swagger =>
 {
     // Generate the default UI of Swagger documentation
     swagger.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "ASP.NET 7 Web API",
-        Description = "Authentication and Authorization in ASP.NET 7 with JWT and Swagger"
+        Title = "ASP.NET 8 Web API",
+        Description = "Authentication and Authorization in ASP.NET 8 with JWT and Swagger"
     });
 
     // Enable authorization using Swagger (JWT)
@@ -101,7 +100,7 @@ WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASP.NET 7 Web API v1"));
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
 }
 
 app.UseHttpsRedirection();

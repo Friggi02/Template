@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -11,7 +10,6 @@ using Project.DAL.Jwt;
 using Project.DAL.Repositories.Generic;
 using Project.DAL.Utils;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Project.DAL.Repositories
 {
@@ -96,7 +94,7 @@ namespace Project.DAL.Repositories
             if (user is null) return Result<LoginReturn>.Failure(UserRepositoryErrors.NotFoundLogin);
             if (!user.Active) return Result<LoginReturn>.Failure(UserRepositoryErrors.Deactivated);
             if (user.IsLockedout()) return Result<LoginReturn>.Failure(UserRepositoryErrors.LockedOut(user.LockoutEnd));
-            
+
             // check the number of accesses failed and set lockout
             if (user.AccessFailedCount > accessFailedMax)
             {
@@ -145,7 +143,7 @@ namespace Project.DAL.Repositories
             });
         }
 
-        public async Task<Result<string>>RefreshToken(Tokens request)
+        public async Task<Result<string>> RefreshToken(Tokens request)
         {
             Result result;
             Result<Guid> id = GetInfoFromToken.Id(request.AccessToken);
@@ -163,7 +161,7 @@ namespace Project.DAL.Repositories
 
             // check the token's expire date
 
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler handler = new();
             JwtSecurityToken jwtSecurityToken = handler.ReadJwtToken(request.RefreshToken);
             DateTime expiryDate = jwtSecurityToken.ValidTo;
 

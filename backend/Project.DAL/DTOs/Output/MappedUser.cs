@@ -1,6 +1,4 @@
-﻿using Project.DAL.Entities;
-
-namespace Project.DAL.DTOs.Output
+﻿namespace Project.DAL.DTOs.Output
 {
     public class MappedUser
     {

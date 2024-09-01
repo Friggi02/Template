@@ -27,21 +27,20 @@ namespace Project.API.Controllers
         private readonly JwtOptions _jwtOptions = jwtOptions;
 
 
-        [HttpGet]
-        [Route("Test")]
-        public IActionResult Get() => Ok("It works");
-
         //[Authorize]
         //[HasPermission(Permissions.ManageUsers)]
         [HttpGet]
         public IActionResult Get(ODataQueryOptions<User> options) => Ok(_repo.UserRepo.GetAllOData(options));
 
         [HttpGet]
+        [Route("Test")]
+        public IActionResult Test() => Ok("It works");
+
+        [HttpGet]
         //[HasPermission(Permissions.ManageUsers)]
         [Route("GetSingleById")]
         public IResult GetSingleById(Guid id) => _repo.UserRepo.GetById(id).Result.ToHttpResult();
 
-        //[Authorize]
         [HttpGet]
         [HasPermission(Permissions.ManageMyself)]
         [Route("SelfGet")]

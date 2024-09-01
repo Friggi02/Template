@@ -1,5 +1,4 @@
 ﻿using Project.DAL.DTOs.Input;
-using Project.DAL.Entities;
 
 namespace Project.DAL.DTOs.Output
 {

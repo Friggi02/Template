@@ -1,5 +1,4 @@
 ﻿using Project.DAL.Entities;
-using Project.DAL.Repositories.Generic;
 using Project.DAL.Utils;
 
 namespace Project.DAL.Repositories

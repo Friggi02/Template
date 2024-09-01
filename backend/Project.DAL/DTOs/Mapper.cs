@@ -1,6 +1,5 @@
 ﻿using Project.DAL.DTOs.Output;
 using Project.DAL.Entities;
-using Project.DAL.Repositories;
 using System.Reflection;
 
 namespace Project.DAL.DTOs
@@ -30,8 +29,9 @@ namespace Project.DAL.DTOs
             return default;
         }
 
-        public MappedUser MapUserToDTO(User user) {
-        
+        public MappedUser MapUserToDTO(User user)
+        {
+
             var userRoles = _ctx.Set<UserRole>()
                 .Where(x => x.UserId == user.Id)
                 .Select(x => x.RoleId)

@@ -9,7 +9,7 @@ namespace Project.DAL.Repositories.UnitOfWork
     public class UnitOfWork(
         ProjectDbContext ctx,
         ILogger<UserRepository> logger,
-        IConfiguration configuration, 
+        IConfiguration configuration,
         IJwtProvider jwtProvider,
         Mapper mapper
         ) : IUnitOfWork

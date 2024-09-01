@@ -15,7 +15,8 @@ namespace Project.DAL.Jwt
         {
 
             // building claims
-            List<Claim> claims = new List<Claim>{
+            List<Claim> claims = new()
+            {
                  new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
 
@@ -23,13 +24,13 @@ namespace Project.DAL.Jwt
             foreach (string permission in permissions) claims.Add(new Claim(CustomClaims.Permissions, permission));
 
             // building signingCredentials
-            SigningCredentials signingCredentials = new SigningCredentials(
+            SigningCredentials signingCredentials = new(
                 _options.TokenParameters.IssuerSigningKey,
                 SecurityAlgorithms.HmacSha256
             );
 
             // building the token
-            JwtSecurityToken token = new JwtSecurityToken(
+            JwtSecurityToken token = new(
                 issuer: _options.TokenParameters.ValidIssuers.FirstOrDefault(),
                 audience: _options.TokenParameters.ValidAudiences.FirstOrDefault(),
                 expires: DateTime.UtcNow.Add(_options.ExpirationAccessToken),
@@ -43,19 +44,20 @@ namespace Project.DAL.Jwt
         {
 
             // building claims
-            List<Claim> claims = new List<Claim>{
+            List<Claim> claims = new()
+            {
                  new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                  new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
             // building signingCredentials
-            SigningCredentials signingCredentials = new SigningCredentials(
+            SigningCredentials signingCredentials = new(
                 _options.TokenParameters.IssuerSigningKey,
                 SecurityAlgorithms.HmacSha256
             );
 
             // building the token
-            JwtSecurityToken token = new JwtSecurityToken(
+            JwtSecurityToken token = new(
                 issuer: _options.TokenParameters.ValidIssuer,
                 audience: _options.TokenParameters.ValidAudience,
                 expires: DateTime.UtcNow.Add(_options.ExpirationRefreshToken),
