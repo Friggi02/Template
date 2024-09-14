@@ -28,7 +28,7 @@ namespace Project.DAL.Repositories.Generic
         /// </summary>
         /// <param name="options">The OData query options to apply.</param>
         /// <returns>The result of applying the query options to the entities.</returns>
-        Result<IQueryable> GetAllOData(ODataQueryOptions<T> options);
+        IQueryable? GetAllOData(ODataQueryOptions<T> options);
 
         #endregion
 

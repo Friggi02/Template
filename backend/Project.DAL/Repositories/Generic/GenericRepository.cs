@@ -65,19 +65,19 @@ namespace Project.DAL.Repositories.Generic
             }
         }
 
-        public Result<IQueryable> GetAllOData(ODataQueryOptions<T> options)
+        public IQueryable? GetAllOData(ODataQueryOptions<T> options)
         {
             _logger.LogInformation($"Executing GetAllOData");
 
             try
             {
                 IQueryable queryable = options.ApplyTo(DbSet.AsQueryable());
-                return Result<IQueryable>.Success(queryable);
+                return queryable;
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred while executing GetAllOData: {ex.Message}, StackTrace: {ex.StackTrace}");
-                return Result<IQueryable>.Failure(GenericRepositoryErrors.SaveChanges);
+                return null;
             }
         }
 
