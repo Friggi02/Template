@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +11,7 @@ using Project.DAL.Jwt;
 using Project.DAL.Repositories.Generic;
 using Project.DAL.Utils;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.RegularExpressions;
 
 namespace Project.DAL.Repositories
 {
@@ -19,10 +21,11 @@ namespace Project.DAL.Repositories
         IConfiguration configuration,
         Mapper mapper,
         IJwtProvider jwtProvider
-     ) : GenericRepository<User>(ctx, logger), IUserRepository
+    ) : GenericRepository<User>(ctx, logger), IUserRepository
     {
         private readonly Mapper _mapper = mapper;
         PasswordHasher<User> passwordHasher = new();
+
         public List<User> GetAllByRole(Role role)
         {
             List<User>? users = Get(x => x.Active, "Roles").Result.Payload;
@@ -33,6 +36,28 @@ namespace Project.DAL.Repositories
         {
             User? user = Get(x => x.Active && x.Id == userId, "Roles").Result.Payload?.FirstOrDefault();
             return user == null ? throw new Exception() : user.Roles.Contains(role);
+        }
+
+        public Result<User?> GetFromHttpContext(HttpContext httpContext)
+        {
+            Guid? idResult = GetInfoFromToken.Id(httpContext);
+
+            return idResult is not null
+                ? GetById(idResult.Value).Result
+                : Result<User?>.Failure(UserRepositoryErrors.ClaimNotFound);
+        }
+        public Result<User?> SelfGet(HttpContext httpContext)
+        {
+            return GetFromHttpContext(httpContext);
+        }
+        public Result AssignRole(Guid userId, string role)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Result RevokeRole(Guid userId, string role)
+        {
+            throw new NotImplementedException();
         }
 
         public Result<User> Create(Register model)
@@ -146,15 +171,14 @@ namespace Project.DAL.Repositories
         public async Task<Result<string>> RefreshToken(Tokens request)
         {
             Result result;
-            Result<Guid> id = GetInfoFromToken.Id(request.AccessToken);
+            Guid? id = GetInfoFromToken.Id(request.AccessToken);
 
-            if (id.IsFailure) return Result<string>.Failure(UserRepositoryErrors.NotFoundRefreshToken);
+            if (id is null) return Result<string>.Failure(UserRepositoryErrors.NotFoundRefreshToken);
 
-            User? user = Get(x => x.Id == id.Payload).Result.Payload?.FirstOrDefault();
+            User? user = Get(x => x.Id == id).Result.Payload?.FirstOrDefault();
             if (user is null) return Result<string>.Failure(UserRepositoryErrors.NotFoundRefreshToken);
             if (!user.Active) return Result<string>.Failure(UserRepositoryErrors.Deactivated);
             if (user.IsLockedout()) return Result<string>.Failure(UserRepositoryErrors.LockedOut(user.LockoutEnd));
-
 
             // check the refresh token on the db
             if (user.RefreshToken != request.RefreshToken) return Result<string>.Failure(UserRepositoryErrors.RefreshTokenNotValid);
@@ -178,8 +202,92 @@ namespace Project.DAL.Repositories
 
             return Result<string>.Success(newAccessToken);
         }
+
+        public async Task<Result> ChangePassword(ChangePassword model, HttpContext httpContext)
+        {
+            // perform checks
+            if (model.CurrentPassword == model.NewPassword) return Result.Failure(UserRepositoryErrors.PasswordsEqual);
+
+            // retrive the user
+            Result<User?> userResult = GetFromHttpContext(httpContext);
+            if (userResult.IsFailure) return Result.Failure(userResult.Error);
+
+            // check password
+            if (passwordHasher.VerifyHashedPassword(userResult.Payload!, userResult.Payload!.PasswordHash, model.CurrentPassword) != PasswordVerificationResult.Success) return Result.Failure(UserRepositoryErrors.WrongPassword);
+
+            // update password
+            userResult.Payload.PasswordHash = passwordHasher.HashPassword(userResult.Payload, model.NewPassword);
+            return await Update(userResult.Payload);
+        }
+
+        public async Task<Result> ChangeUsername(ChangeUsername model, HttpContext httpContext)
+        {
+            // checks on newUsername
+            if (string.IsNullOrEmpty(model.NewUserName) || model.NewUserName.Length > 40 || model.NewUserName.Contains(" ")) return Result.Failure(UserRepositoryErrors.UsernameNotValid);
+
+            // check the existance with the same username
+            var userExists = await Exist(x => x.Username == model.NewUserName);
+            if (userExists.IsFailure) return Result.Failure(userExists.Error);
+            if (userExists.Payload) return Result.Failure(UserRepositoryErrors.UsernameAlreadyExists);
+
+            // retrive the user
+            Result<User?> userResult = GetFromHttpContext(httpContext);
+            if (userResult.IsFailure) return Result.Failure(userResult.Error);
+
+            // check password
+            if (passwordHasher.VerifyHashedPassword(userResult.Payload!, userResult.Payload!.PasswordHash, model.CurrentPassword) != PasswordVerificationResult.Success) return Result.Failure(UserRepositoryErrors.WrongPassword);
+
+            // update Username
+            userResult.Payload.Username = model.NewUserName;
+            return await Update(userResult.Payload);
+        }
+
+        public async Task<Result> ChangeEmail(ChangeEmail model, HttpContext httpContext)
+        {
+            // checks on newEmail
+            if (string.IsNullOrEmpty(model.NewEmail) || model.NewEmail.Length > 40 || !Regex.IsMatch(model.NewEmail, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) return Result.Failure(UserRepositoryErrors.InvalidEmail);
+
+            // check the existance with the same email
+            var userExists = await Exist(x => x.Email == model.NewEmail);
+            if (userExists.IsFailure) return Result.Failure(userExists.Error);
+            if (userExists.Payload) return Result.Failure(UserRepositoryErrors.EmailAlreadyExists);
+
+            // retrive the user
+            Result<User?> userResult = GetFromHttpContext(httpContext);
+            if (userResult.IsFailure) return Result.Failure(userResult.Error);
+
+            // check password
+            if (passwordHasher.VerifyHashedPassword(userResult.Payload!, userResult.Payload!.PasswordHash, model.CurrentPassword) != PasswordVerificationResult.Success) return Result.Failure(UserRepositoryErrors.WrongPassword);
+
+            // update Email
+            userResult.Payload.Email = model.NewEmail;
+            return await Update(userResult.Payload);
+        }
+
+        public async Task<Result> SelfDelete(SelfDelete model, HttpContext httpContext)
+        {
+            // retrive the user
+            Result<User?> userResult = GetFromHttpContext(httpContext);
+            if (userResult.IsFailure) return Result.Failure(userResult.Error);
+
+            // check if is the last admin
+            if (userResult.Payload!.Roles.Contains(Role.Admin))
+            {
+                var admins = GetAllByRole(Role.Admin);
+                admins.Remove(userResult.Payload);
+                if (admins.Count == 0) return Result.Failure(UserRepositoryErrors.LastAdmin);
+            }
+
+            // check password
+            if (passwordHasher.VerifyHashedPassword(userResult.Payload!, userResult.Payload!.PasswordHash, model.CurrentPassword) != PasswordVerificationResult.Success) return Result.Failure(UserRepositoryErrors.WrongPassword);
+
+            // delete
+            return await HardDelete(userResult.Payload.Id);
+        }
+
         public static class UserRepositoryErrors
         {
+            public static readonly Error ClaimNotFound = Error.NotFound("UserRepository.SerchingClaim", "The NameIdentifier claim was not found or it wasn't a GUID");
             public static readonly Error AccessFailedMax = Error.Conflict("UserRepository.ReadingAppsettings", "Failed reading AccessFailedMax from appsetting.json");
             public static readonly Error LockoutTime = Error.Conflict("UserRepository.ReadingAppsettings", "Failed reading LockoutTime from appsetting.json");
             public static readonly Error ExistingUsername = Error.Conflict("UserRepository.Create", "Username already exists");
@@ -190,6 +298,13 @@ namespace Project.DAL.Repositories
             public static readonly Error NotFoundRefreshToken = Error.Validation("UserRepository.RefreshToken", "User not found");
             public static readonly Error RefreshTokenNotValid = Error.Validation("UserRepository.RefreshToken", "RefreshToken not valid");
             public static readonly Error RefreshTokenExpired = Error.Validation("UserRepository.RefreshToken", "RefreshToken expired");
+            public static readonly Error PasswordsEqual = Error.Validation("UserRepository.ChangePassword", "New and old password are equal");
+            public static readonly Error UsernameNotValid = Error.Validation("UserRepository.ChangeUsername", "Username is not valid");
+            public static readonly Error UsernameAlreadyExists = Error.Conflict("UserRepository.ChangeUsername", "Username already exists");
+            public static readonly Error EmailAlreadyExists = Error.Conflict("UserRepository.ChangeEmail", "Email already exists");
+            public static readonly Error WrongPassword = Error.Validation("UserRepository", "Invalid password");
+            public static readonly Error InvalidEmail = Error.Validation("UserRepository.ChangeEmail", "Email is not valid");
+            public static readonly Error LastAdmin = Error.Validation("UserRepository.SelfDelete", "You're the last admin");
             public static Error LockedOut(DateTime? until) => Error.Validation("UserRepository.Login", $"Too many tries. You're locked out until {until}");
         }
     }

@@ -6,36 +6,29 @@ namespace Project.DAL.Utils
 {
     public class GetInfoFromToken
     {
-        public static Result<Guid> Id(HttpContext httpContext)
+        public static Guid? Id(HttpContext httpContext)
         {
             Claim? claim = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
-            if (claim == null) return Result<Guid>.Failure(GetTokenFromRequestErrors.ClaimNotFound);
+            if (claim == null) return null;
 
-            if (!Guid.TryParse(claim.Value, out Guid guidValue)) return Result<Guid>.Failure(GetTokenFromRequestErrors.NotGuid);
+            if (!Guid.TryParse(claim.Value, out Guid guidValue)) return null;
 
-            return Result<Guid>.Success(guidValue);
+            return guidValue;
         }
 
-        public static Result<Guid> Id(string accessToken)
+        public static Guid? Id(string accessToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtToken = tokenHandler.ReadJwtToken(accessToken);
 
             var claim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
-            if (claim == null) return Result<Guid>.Failure(GetTokenFromRequestErrors.ClaimNotFound);
+            if (claim == null) return null;
 
-            if (!Guid.TryParse(claim.Value, out Guid guidValue)) return Result<Guid>.Failure(GetTokenFromRequestErrors.NotGuid);
+            if (!Guid.TryParse(claim.Value, out Guid guidValue)) return null;
 
-            return Result<Guid>.Success(guidValue);
-        }
-
-        public static class GetTokenFromRequestErrors
-        {
-            public static readonly Error ClaimNotFound = Error.NotFound("GetTokenFromRequest.SerchingClaim", "The NameIdentifier claim was not found");
-            public static readonly Error NotGuid = Error.Validation("GetTokenFromRequest.ReadingId", "The value of the NameIdentifier claim was not Guid");
+            return guidValue;
         }
     }
-
 }
