@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
-using Project.DAL.DTOs;
 using Project.DAL.DTOs.Input;
-using Project.DAL.DTOs.Output;
 using Project.DAL.Entities;
 using Project.DAL.Permit;
 using Project.DAL.Repositories;

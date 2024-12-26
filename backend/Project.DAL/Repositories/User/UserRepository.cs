@@ -46,10 +46,12 @@ namespace Project.DAL.Repositories
                 ? GetById(idResult.Value).Result
                 : Result<User?>.Failure(UserRepositoryErrors.ClaimNotFound);
         }
+        
         public Result<User?> SelfGet(HttpContext httpContext)
         {
             return GetFromHttpContext(httpContext);
         }
+        
         public Result AssignRole(Guid userId, string role)
         {
             throw new NotImplementedException();
